@@ -1,0 +1,9 @@
+## Fixes
+
+- Fix the prerequisites not installing as it should
+- Fix the ADB SYSTEM PATH not being detected
+- Fix the issue where the MyProject file is being created and the test is created in there instead, as well as the .APK
+- Fix the issue where the test doesnt run properly.
+
+## Updates
+- Create an interactive GUI

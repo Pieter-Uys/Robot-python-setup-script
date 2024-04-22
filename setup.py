@@ -1,12 +1,10 @@
-import os
 import sys
 import subprocess
-import yaml
 import tkinter as tk
-from tkinter import filedialog
 from colorama import init, Fore, Style
 from utils import setup_utils, logging_utils, virtualenv_utils, appium_utils, android_utils, ios_utils, web_utils, testcase_utils
 from utils.loader import Loader
+from utils.CustomDialog import ask_for_venv_details
 
 # Initialize colorama
 init()
@@ -27,17 +25,18 @@ setup_utils.install_required_packages()
 # Create project directory
 project_dir = setup_utils.create_project_directory(config)
 
-# Prompt the user for the virtual environment location
-print(f"{Fore.BLUE}Select the location to create the virtual environment:{Style.RESET_ALL}")
+# Use CustomDialog to get the virtual environment details
 root = tk.Tk()
-root.withdraw()
-venv_location = filedialog.askdirectory(title="Select Virtual Environment Location")
+root.withdraw()  # Hide the main window
+venv_location, venv_name = ask_for_venv_details(root)
+root.destroy()
 
-# Prompt the user for the virtual environment name
-venv_name = input(f"{Fore.BLUE}Enter the name for the virtual environment: {Style.RESET_ALL}")
+if not venv_location or not venv_name:
+    print(f"{Fore.RED}Virtual environment creation cancelled.{Style.RESET_ALL}")
+    sys.exit()
 
 # Create and activate virtual environment
-with Loader(f"Creating virtual environment '{venv_name}'...", color=Fore.MAGENTA):
+with Loader(f"Creating virtual environment '{venv_name}' at '{venv_location}'...", color=Fore.MAGENTA):
     venv_dir = virtualenv_utils.create_virtual_environment(venv_location, venv_name)
     virtualenv_utils.activate_virtual_environment(venv_dir)
 
@@ -53,7 +52,6 @@ with Loader("Starting Appium server...", color=Fore.YELLOW):
 
 # Get platform from configuration or user input
 platform_name = setup_utils.get_platform(config)
-
 if platform_name == "Android":
     android_utils.check_android_studio_installation()
     android_utils.check_adb_devices()
